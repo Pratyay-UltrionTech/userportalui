@@ -1,0 +1,26 @@
+.landing-page .nbsec{background:var(--navy)}
+.landing-page .nbsec .lbl{font-size:clamp(12px,1.1vw,14px);letter-spacing:2.5px;color:#fff;margin-bottom:.65rem}
+.landing-page .nbsec .sub{font-size:clamp(1.05rem,1.2vw,1.2rem);color:#fff;line-height:1.75;max-width:560px}
+.landing-page .nbgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:2rem}
+.landing-page .nc{position:relative;border-radius:12px;overflow:hidden;height:210px;background:#162e58;display:block;text-decoration:none;cursor:pointer;transition:transform .24s ease,box-shadow .24s ease}
+.landing-page .nc img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.landing-page .nc:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 12px 24px rgba(0,0,0,0.26)}
+.landing-page .nc:hover img{transform:scale(1.03)}
+.landing-page .nc:focus-visible{outline:2px solid rgba(236,205,143,0.95);outline-offset:2px;transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,0.26)}
+.landing-page .nov{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,29,58,0.92) 0%,rgba(12,29,58,0.1) 65%);display:flex;flex-direction:column;justify-content:flex-end;padding:1.1rem}
+.landing-page .nic{font-size:26px;margin-bottom:.4rem}
+.landing-page .nt{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,2vw,1.45rem);font-weight:400;letter-spacing:.04em;color:#fff;margin-bottom:.2rem}
+.landing-page .nd{font-size:clamp(12px,1.05vw,14px);color:#fff;line-height:1.55;font-weight:600}
+.landing-page .nmh{margin-top:.4rem;font-size:clamp(11px,1vw,13px);font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:#fff}
+.landing-page .nbcta{display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;margin-top:2rem}
+.landing-page .nbcta p{font-size:clamp(1rem,1.15vw,1.125rem);color:#fff;line-height:1.8;max-width:480px}
+.landing-page .nbcta strong{color:#fff}
+.landing-page .location-section{margin-top:3rem;padding:1.5rem;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.1);text-align:center}
+.landing-page .location-section h3{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;font-weight:400;letter-spacing:.04em;color:#fff;margin-bottom:.5rem}
+.landing-page .address{font-size:.95rem;color:rgba(255,255,255,0.8);margin-bottom:1rem;font-weight:500}
+.landing-page .nearby-title{font-size:.85rem;color:rgba(255,255,255,0.6);margin-top:1rem;margin-bottom:.6rem;font-weight:600}
+.landing-page .map-link{display:inline-block;background:var(--gold);color:var(--navy);padding:8px 18px;border-radius:4px;font-size:.9rem;font-weight:700;text-decoration:none;transition:background .3s ease;text-transform:uppercase;letter-spacing:.5px;margin:0 .5rem}
+.landing-page .map-link:hover{background:#e8d4a0}
+.landing-page .map-link.secondary{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3)}
+.landing-page .map-link.secondary:hover{background:rgba(255,255,255,0.25)}
+@media(max-width:640px){.landing-page .nbgrid{grid-template-columns:1fr}}

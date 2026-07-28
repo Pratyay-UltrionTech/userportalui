@@ -1,0 +1,62 @@
+.landing-page nav,.landing-page .navbar{background:var(--navy);display:flex;align-items:center;justify-content:flex-start;gap:clamp(.75rem,2vw,1.5rem);padding:0 clamp(1rem,2vw,2rem);min-height:var(--landing-nav-height);height:var(--landing-nav-height);border-bottom:1px solid rgba(201,168,76,0.2);position:sticky;top:0;z-index:100;min-width:0}
+.landing-page .nb{display:flex;align-items:center;gap:clamp(10px,1.5vw,14px);min-width:0;flex:0 0 auto;max-width:none}
+.landing-page .ni{height:clamp(52px,6.5vw,62px);max-width:260px;width:auto;display:flex;align-items:center;flex-shrink:0}
+.landing-page .ni .ni-logo,.landing-page .ni-logo{height:clamp(52px,6.5vw,62px)!important;max-height:none!important;width:auto!important;max-width:260px;object-fit:contain;object-position:left center;display:block}
+.landing-page .nn{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,1.65rem,28px);font-weight:400;letter-spacing:.04em;color:#fff;line-height:1.2;white-space:nowrap;flex-shrink:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.landing-page .nn small{display:block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,.78rem,13px);font-weight:300;color:var(--gold2);letter-spacing:1.5px;line-height:1.35;margin-top:3px;white-space:normal;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.landing-page .nr{display:flex;align-items:center;gap:clamp(1rem,2vw,1.75rem);margin-left:auto;flex-shrink:0}
+.landing-page .nl{display:flex;align-items:center;gap:clamp(.65rem,1.4vw,1.5rem);list-style:none;margin:0;padding:0;flex-shrink:0}
+.landing-page .nl li{flex-shrink:0}
+.landing-page .nl a{color:rgba(255,255,255,0.7);font-size:15px;white-space:nowrap}
+.landing-page .nl a:hover{color:var(--gold)}
+.landing-page .nbtn{background:var(--gold);color:var(--navy);padding:9px 20px;border-radius:6px;font-size:13px;font-weight:600;flex-shrink:0;white-space:nowrap}
+.landing-page .nmenu-toggle{display:none;border:0;background:transparent;padding:6px;cursor:pointer;line-height:0}
+.landing-page .nmenu-toggle span{display:block;width:22px;height:2px;background:#fff;border-radius:999px}
+.landing-page .nmenu-toggle span+span{margin-top:5px}
+.landing-page .nmobile{display:none}
+.landing-page .nmobile-list{list-style:none;margin:0;padding:0}
+.landing-page .nmobile-list a{color:#fff;display:block;padding:.75rem 0;border-bottom:1px solid rgba(255,255,255,0.08)}
+.landing-page .nmobile-list a:hover{color:var(--gold)}
+@media(max-width:1024px){
+  .landing-page .nb{max-width:min(44vw,280px)}
+  .landing-page .nl{gap:.85rem}
+  .landing-page .nl a{font-size:13px}
+  .landing-page .nbtn{padding:8px 16px;font-size:12px}
+}
+@media(max-width:768px){
+  .landing-page nav,.landing-page .navbar{position:sticky}
+  .landing-page .navbar{
+    flex-wrap:wrap;
+    height:auto;
+    min-height:var(--landing-nav-height);
+    align-items:center;
+    overflow:visible;
+  }
+  .landing-page .nl{display:none}
+  .landing-page .nbtn{display:none}
+  .landing-page .nmenu-toggle{display:block}
+  .landing-page .nr{gap:0;margin-left:auto}
+  .landing-page .nb{max-width:none;flex:1;min-width:0;min-height:var(--landing-nav-height)}
+  .landing-page .nr{min-height:var(--landing-nav-height)}
+  .landing-page .nmobile{
+    position:absolute;
+    left:0;
+    right:0;
+    top:100%;
+    width:100%;
+    display:none;
+    max-height:calc(72svh - var(--landing-nav-height));
+    overflow-y:auto;
+    background:rgba(12,29,58,0.98);
+    border-top:1px solid rgba(201,168,76,0.25);
+    box-shadow:0 10px 30px rgba(0,0,0,0.32);
+    z-index:120;
+  }
+  .landing-page .nmobile.open{display:block}
+  .landing-page .nmobile-list{background:transparent;border-top:0;padding:.35rem 0}
+  .landing-page .nmobile-list li{padding:0 14px}
+  .landing-page .nmobile-list a{font-size:14px}
+  /* Keep brand name on one line; hide tagline on very small screens to avoid cut-off */
+  .landing-page .nn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .landing-page .nn small{display:none}
+}

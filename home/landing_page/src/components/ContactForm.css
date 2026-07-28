@@ -1,0 +1,24 @@
+.landing-page .csec{background:var(--navy)}
+.landing-page .csec .lbl{font-size:clamp(12px,1.1vw,14px);letter-spacing:2.5px;color:#fff}
+.landing-page .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:3rem}
+.landing-page .contact-info{}
+.landing-page .cir{display:flex;align-items:flex-start;gap:12px;margin-bottom:1.15rem}
+.landing-page .cic{width:38px;height:38px;border-radius:7px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.landing-page .cil{font-size:clamp(10px,.9vw,12px);text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.55);margin-bottom:3px}
+.landing-page .civ{font-size:clamp(14px,1.1vw,16px);color:#fff;line-height:1.55}
+.landing-page .qf{background:rgba(255,255,255,0.06);border-radius:11px;padding:1.75rem;border:1px solid rgba(255,255,255,0.1)}
+.landing-page .qf h3{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,2.2vw,1.75rem);font-weight:400;letter-spacing:.04em;color:#fff;margin-bottom:1.25rem}
+.landing-page .fr{margin-bottom:.9rem}
+.landing-page .fr label{display:block;font-size:clamp(11px,1vw,13px);color:#fff;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px}
+.landing-page .fr input,.landing-page .fr select{width:100%;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:11px 13px;color:#fff;font-size:clamp(14px,1.1vw,16px);outline:none;font-family:inherit;-webkit-appearance:none;appearance:none}
+.landing-page .fr input[type="date"]{color-scheme:dark}
+/* Hide the native browser calendar icon — we use our own SVG background-image instead (works on Chrome, Edge and Safari) */
+.landing-page .fr input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;width:0;height:0;padding:0}
+/* White calendar SVG icon via background-image — works in all browsers including Safari iOS */
+.landing-page .fr--date{position:relative}
+.landing-page .fr--date input[type="date"]{padding-right:2.6rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='rgba(255%2C255%2C255%2C0.7)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.75rem center;background-size:18px 18px;cursor:pointer}
+.landing-page .fr input::placeholder{color:rgba(255,255,255,0.28)}
+.landing-page .fr select option{background:#162e58}
+.landing-page .fsub{width:100%;background:var(--gold);color:var(--navy);padding:13px;border:none;border-radius:7px;font-size:clamp(15px,1.1vw,16px);font-weight:700;cursor:pointer;margin-top:.4rem}
+.landing-page .fsub:hover{opacity:.92}
+@media(max-width:860px){.landing-page .cgrid{grid-template-columns:1fr}}

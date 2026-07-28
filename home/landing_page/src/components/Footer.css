@@ -1,0 +1,4 @@
+.landing-page .fbar{background:#060f1e;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.landing-page .fbar p,.landing-page .fbar a{font-size:11px;color:rgba(255,255,255,0.28)}
+.landing-page .footer-links{display:flex;gap:1.25rem}
+.landing-page .footer-links a:hover{color:rgba(255,255,255,0.55)}

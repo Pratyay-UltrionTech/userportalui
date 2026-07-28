@@ -1,0 +1,54 @@
+/* Brand PNG on a light badge — reads clearly on navy/green */
+
+.landing-page .coffee-icon-frame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  background: #fffbeb;
+  border: 0;
+  box-shadow: 0 1px 4px rgba(12, 29, 58, 0.12);
+}
+
+.landing-page .coffee-icon-frame .coffee-icon-img {
+  mix-blend-mode: normal !important;
+  object-fit: contain;
+  display: block;
+}
+
+/* Contact row — matches .cic size */
+.landing-page .coffee-icon-frame--md {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  padding: 5px;
+}
+
+/* Green strip — compact inline */
+.landing-page .coffee-icon-frame--inline {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  padding: 3px;
+  vertical-align: middle;
+  margin: 0 0.15rem;
+}
+
+.landing-page .coffee-icon-frame--inline .coffee-icon-img {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Coffee promise card header */
+.landing-page .coffee-icon-frame--lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  padding: 7px;
+}
+
+.landing-page .coffee-icon-frame--lg .coffee-icon-img {
+  width: 32px !important;
+  height: 32px !important;
+}

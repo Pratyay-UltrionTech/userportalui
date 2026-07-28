@@ -1,0 +1,355 @@
+/* Shared service package cards — hero pricing & booking flow selection */
+
+.ps-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #fff;
+  border: 1px solid rgba(22, 61, 117, 0.26);
+  border-radius: 14px;
+  overflow: visible;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.18s;
+}
+
+.ps-card:hover {
+  border-color: rgba(22, 61, 117, 0.34);
+  box-shadow: 0 8px 22px rgba(22, 61, 117, 0.14);
+  transform: translateY(-2px);
+}
+
+.ps-card:focus-visible {
+  outline: 2px solid #c9a84c;
+  outline-offset: 2px;
+}
+
+.ps-card--selected {
+  background: #edf4ff;
+  border: 1px solid #154a93;
+  box-shadow: 0 5px 16px rgba(25, 89, 177, 0.2);
+}
+
+.ps-card--selected:hover {
+  background: #e6efff;
+  border-color: #154a93;
+  box-shadow: 0 8px 20px rgba(25, 89, 177, 0.22);
+  transform: translateY(-2px);
+}
+
+.ps-card--selected .ps-card-head {
+  background: linear-gradient(180deg, rgba(25, 89, 177, 0.34) 0%, rgba(25, 89, 177, 0.18) 100%);
+  border-bottom-color: rgba(12, 29, 58, 0.1);
+}
+
+.ps-card--selected .ps-card-body {
+  background: #e3edff;
+}
+
+.ps-card-head {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.3rem;
+  min-height: 4.6rem;
+  padding: 0.75rem 1rem 0.65rem;
+  border-bottom: 1px solid rgba(12, 29, 58, 0.07);
+  background: linear-gradient(180deg, rgba(25, 89, 177, 0.22) 0%, rgba(25, 89, 177, 0.1) 100%);
+  transition: background 0.2s;
+  border-radius: 12px 12px 0 0;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ps-card-head {
+    min-height: 4.8rem;
+    padding: 0.8rem 1.1rem 0.7rem;
+  }
+}
+
+.ps-card-topline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 0;
+  min-width: 0;
+  min-height: 28px;
+}
+
+.ps-card-title {
+  flex: 1;
+  min-width: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.22rem;
+  font-weight: 600;
+  color: #0c1d3a;
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .ps-card-title {
+    font-size: 1.28rem;
+  }
+}
+
+.ps-card-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ps-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.ps-card-badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #0c1d3a;
+  background: #e8eef8;
+  border: 2px solid #fff;
+  padding: 4px 14px;
+  border-radius: 100px;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(12, 29, 58, 0.12);
+}
+
+@media (min-width: 640px) {
+  .ps-card-badge {
+    font-size: 11px;
+    padding: 4px 16px;
+  }
+}
+
+.ps-card-price,
+.ps-card-duration {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: #0c1d3a;
+  line-height: 1.4;
+}
+
+.ps-card-price {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #0f3570;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.ps-card-duration {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #48648d;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .ps-card-price,
+  .ps-card-duration {
+    font-size: 16px;
+  }
+
+  .ps-card-price {
+    font-size: 1.12rem;
+  }
+
+  .ps-card-duration {
+    font-size: 0.98rem;
+  }
+}
+
+.ps-card-perks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+  min-width: 0;
+  min-height: 0;
+  justify-content: flex-end;
+}
+
+.ps-card-perk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  padding: 5px;
+  line-height: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.ps-card-perk svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.ps-card-perk--coffee {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+.ps-card-perk--coffee svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: #92650a;
+}
+
+.ps-card-perk--loyalty {
+  background: rgba(201, 168, 76, 0.12);
+  color: #92650a;
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+
+.ps-card-perk--loyalty svg {
+  width: 17px;
+  height: 17px;
+}
+
+.ps-card-perk--placeholder {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  visibility: hidden;
+  box-shadow: none;
+}
+
+.ps-card-body {
+  flex: 1 1 auto;
+  padding: 1rem 1.15rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 0 0 12px 12px;
+}
+
+@media (min-width: 640px) {
+  .ps-card-body {
+    padding: 1.05rem 1.25rem 1.25rem;
+  }
+}
+
+.ps-detail-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ps-row-heading {
+  width: 100%;
+}
+
+.ps-row-heading--gap {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(12, 29, 58, 0.07);
+}
+
+.ps-row-heading-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0c1d3a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.ps-row-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.ps-row-item--gap {
+  margin-top: 2px;
+}
+
+.ps-row-item--gap-included-after-excluded {
+  margin-top: 8px;
+}
+
+.ps-row-check {
+  flex-shrink: 0;
+  margin-top: 3px;
+  line-height: 0;
+}
+
+.ps-row-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+  line-height: 1.5;
+  word-break: break-word;
+  min-width: 0;
+  flex: 1;
+}
+
+.ps-row-text--excluded {
+  color: #b0b8c4;
+}
+
+.ps-card-duration-row {
+  margin-top: 0.85rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(22, 61, 117, 0.18);
+  display: flex;
+  justify-content: center;
+}
+
+.ps-card-duration-text {
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: #35537e;
+  line-height: 1.25;
+}

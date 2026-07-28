@@ -1,0 +1,27 @@
+Instructions to copy generated images into the React project.
+
+Run this script with Node.js from the landing_page directory:
+
+  node copy-images.js
+
+Or manually copy the files listed below.
+
+Source folder (brain):
+  C:\Users\krish\.gemini\antigravity\brain\788e0302-fff2-42fd-85c4-58c46705b6e1\
+
+Destination base:
+  C:\Users\krish\OneDrive\Desktop\home\landing_page\public\images\
+
+Copies:
+  hero_car_wash_1777440774128.png       →  hero\car-wash-hero.jpg
+  exterior_wash_1777440800424.png       →  services\exterior.jpg
+  interior_vacuum_1777440825507.png     →  services\interior.jpg
+  window_cleaning_1777440840755.png     →  services\window.jpg
+  steam_cleaning_1777440858380.png      →  services\steam.jpg
+  premium_polish_1777440885902.png      →  services\polish.jpg
+  tyre_shining_1777440902419.png        →  services\tyre.jpg
+  why_us_detailing_1777440918955.png    →  why\detailing.jpg
+  cafe_local_1777440933609.png          →  neighbourhood\cafe.jpg
+  woolworths_store_1777440962434.png    →  neighbourhood\woolies.jpg
+  local_shops_1777440978222.png         →  neighbourhood\shops.jpg
+  relax_outdoor_1777440994848.png       →  neighbourhood\relax.jpg

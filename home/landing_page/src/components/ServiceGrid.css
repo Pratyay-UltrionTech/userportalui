@@ -1,0 +1,38 @@
+.landing-page .strip{background:var(--green);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;text-align:center}
+.landing-page .strip-coffee-icon{color:rgba(255,255,255,0.95);display:flex;align-items:center;line-height:0;flex-shrink:0}
+.landing-page .strip-coffee-icon-inline{
+  display:inline-flex;
+  align-items:center;
+  vertical-align:middle;
+  margin:0 .15rem;
+  line-height:0;
+}
+.landing-page .stag{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:5px 14px;border-radius:100px;font-size:clamp(12px,1.1vw,14px);font-weight:600;letter-spacing:.04em}
+.landing-page .strip p{color:#fff;font-size:clamp(15px,1.25vw,17px);line-height:1.45}
+.landing-page .strip strong{color:#a8e6c5}
+
+.landing-page .service-section .lbl{font-size:clamp(12px,1.1vw,14px);letter-spacing:2.5px;margin-bottom:.65rem}
+.landing-page .service-section .sub{font-size:clamp(1.05rem,1.2vw,1.2rem);line-height:1.75;max-width:560px}
+.landing-page .sg{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:230px;gap:12px;margin-top:2rem}
+.landing-page .sc{position:relative;border-radius:12px;overflow:hidden;cursor:pointer;background:#102547}
+.landing-page .sc img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;transition:transform .5s ease, opacity .4s ease;opacity:.95}
+.landing-page .sc:hover img{transform:scale(1.03);opacity:1}
+.landing-page .sc.tall{grid-row:span 2}
+.landing-page .sc.tall img{object-fit:cover;object-position:center top}
+.landing-page .sc.wide{grid-column:span 3;grid-row:span 1}
+.landing-page .so{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,29,58,0.78) 0%,rgba(12,29,58,0.05) 50%);display:flex;flex-direction:column;justify-content:flex-end;padding:1.25rem}
+.landing-page .wide-tags{position:absolute;left:.9rem;right:.9rem;top:.9rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.45rem;pointer-events:none}
+.landing-page .wide-tag{background:rgba(12,29,58,0.55);border:1px solid rgba(255,255,255,0.25);color:#fff;font-size:10px;font-weight:600;letter-spacing:.3px;text-align:center;padding:.3rem .2rem;border-radius:999px;text-shadow:0 1px 2px rgba(0,0,0,0.45)}
+.landing-page .sticker{position:absolute;top:.85rem;left:.85rem;background:var(--gold);color:var(--navy);font-size:9px;font-weight:700;padding:3px 11px;border-radius:100px}
+.landing-page .slbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold2);margin-bottom:.25rem;font-weight:700}
+.landing-page .sname{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;font-weight:400;letter-spacing:.04em;color:#fff;margin-bottom:.2rem}
+.landing-page .sprice{font-size:12px;color:rgba(255,255,255,0.75);font-weight:600}
+@media(max-width:900px){.landing-page .sg{grid-template-columns:repeat(2,1fr)}.landing-page .sc.wide{grid-column:span 2}}
+@media(max-width:900px){.landing-page .wide-tags{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.landing-page .sg{grid-template-columns:1fr}.landing-page .sc.wide,.landing-page .sc.tall{grid-column:span 1;grid-row:span 1}}
+
+.landing-page .addon-banner{position:relative;margin-top:2rem;border-radius:12px;overflow:hidden;background:#102547;width:100%;height:clamp(200px,28vw,360px)}
+.landing-page .addon-banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.landing-page .addon-banner-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,29,58,0.82) 0%,rgba(12,29,58,0.12) 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:1.35rem 1.5rem;pointer-events:none}
+.landing-page .addon-banner-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,3.8vw,2.25rem);font-weight:400;letter-spacing:.04em;color:#fff;margin:0;line-height:1.05}
+@media(max-width:600px){.landing-page .addon-banner{height:clamp(200px,42vw,280px)}}

@@ -1,0 +1,699 @@
+/* ================================================================
+   PricingSection — clean panel layout aligned with landing page
+   ================================================================ */
+
+.landing-page .ps-section-inner {
+  width: 100%;
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landing-page .ps-section-inner > h2 {
+  margin-bottom: 1.75rem;
+}
+
+/* ── Loading / error / empty ── */
+.landing-page .ps-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.landing-page .ps-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: ps-spin 0.8s linear infinite;
+}
+
+@keyframes ps-spin {
+  to { transform: rotate(360deg); }
+}
+
+.landing-page .ps-error {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 32px;
+  font-size: 14px;
+}
+
+.landing-page .ps-error a {
+  color: var(--navy);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.landing-page .ps-empty {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  padding: 48px 16px;
+}
+
+/* ── Main panel ── */
+.landing-page .ps-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(12, 29, 58, 0.07);
+  overflow: visible;
+}
+
+.landing-page .ps-panel-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.35rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+  border-radius: 14px 14px 0 0;
+}
+
+@media (min-width: 768px) {
+  .landing-page .ps-panel-toolbar {
+    gap: 1.35rem;
+    padding: 1.5rem 1.75rem;
+  }
+}
+
+.landing-page .ps-toolbar-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.landing-page .ps-toolbar-block--vehicles {
+  align-items: center;
+}
+
+.landing-page .ps-toolbar-block--tabs {
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* ── Vehicle selector ── */
+.landing-page .ps-vehicles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.landing-page .ps-vbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(12, 29, 58, 0.14);
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, box-shadow 0.18s;
+}
+
+.landing-page .ps-vbtn:hover {
+  border-color: rgba(12, 29, 58, 0.3);
+  box-shadow: 0 2px 6px rgba(12, 29, 58, 0.08);
+}
+
+.landing-page .ps-vbtn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.landing-page .ps-vbtn--active {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(12, 29, 58, 0.2);
+}
+
+.landing-page .ps-vbtn--active:hover {
+  background: #1a3560;
+  border-color: #1a3560;
+}
+
+/* ── Category tabs ── */
+.landing-page .ps-tabs {
+  display: inline-flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-page .ps-tab {
+  position: relative;
+  padding: 8px 18px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.18s;
+}
+
+.landing-page .ps-tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--navy);
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.landing-page .ps-tab:hover {
+  color: var(--navy);
+}
+
+.landing-page .ps-tab--active {
+  color: var(--navy);
+}
+
+.landing-page .ps-tab--active::after {
+  transform: scaleX(1);
+}
+
+.landing-page .ps-tab:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Horizontal carousel ── */
+.landing-page .ps-panel-body {
+  padding: 1.25rem 0 1.5rem;
+  overflow: visible;
+}
+
+@media (max-width: 767px) {
+  .landing-page .ps-panel-body {
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+}
+
+.landing-page .ps-carousel-wrap {
+  position: relative;
+  /* Tighter side inset on mobile so cards use more horizontal space */
+  padding: 0 28px;
+}
+
+@media (min-width: 768px) {
+  .landing-page .ps-carousel-wrap {
+    padding: 0 52px;
+  }
+}
+
+.landing-page .ps-clip {
+  overflow: hidden;
+  width: 100%;
+}
+
+.landing-page .ps-scroller {
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  container-type: inline-size;
+  container-name: ps-scroller;
+  padding: 18px 0 8px;
+  width: 100%;
+}
+
+.landing-page .ps-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.landing-page .ps-track {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  min-width: 100%;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .landing-page .ps-track {
+    gap: 14px;
+  }
+}
+
+.landing-page .ps-slide {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-width: 0;
+  display: flex;
+  flex: 0 0 100cqw;
+  width: 100cqw;
+  align-self: stretch;
+}
+
+@media (min-width: 768px) {
+  .landing-page .ps-slide {
+    flex: 0 0 calc((100cqw - 28px) / 3);
+    width: calc((100cqw - 28px) / 3);
+    max-width: calc((100cqw - 28px) / 3);
+  }
+}
+
+.landing-page .ps-arrow {
+  position: absolute;
+  top: 36%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  color: var(--navy);
+}
+
+.landing-page .ps-arrow:hover {
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  background: #fff;
+}
+
+.landing-page .ps-arrow--prev {
+  left: 2px;
+}
+
+.landing-page .ps-arrow--next {
+  right: 2px;
+}
+
+@media (min-width: 768px) {
+  .landing-page .ps-arrow--prev {
+    left: 8px;
+  }
+
+  .landing-page .ps-arrow--next {
+    right: 8px;
+  }
+}
+
+.landing-page .ps-arrow--disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Service card ── */
+.landing-page .ps-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #fff;
+  border: 1px solid rgba(12, 29, 58, 0.1);
+  border-radius: 12px;
+  overflow: visible;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.18s;
+}
+
+.landing-page .ps-card:hover {
+  border-color: rgba(12, 29, 58, 0.22);
+  box-shadow: 0 6px 20px rgba(12, 29, 58, 0.08);
+  transform: translateY(-2px);
+}
+
+.landing-page .ps-card:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.landing-page .ps-card--selected {
+  background: #e8f0fe;
+  border: 1px solid var(--navy);
+  box-shadow: 0 4px 14px rgba(12, 29, 58, 0.1);
+}
+
+.landing-page .ps-card--selected:hover {
+  background: #dfe8fc;
+  border-color: var(--navy);
+  box-shadow: 0 6px 18px rgba(12, 29, 58, 0.12);
+  transform: translateY(-2px);
+}
+
+.landing-page .ps-card--selected .ps-card-head {
+  background: transparent;
+  border-bottom-color: rgba(12, 29, 58, 0.1);
+}
+
+.landing-page .ps-card--selected .ps-card-body {
+  background: transparent;
+}
+
+.landing-page .ps-card-head {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.4rem;
+  min-height: 6.25rem;
+  padding: 1.2rem 1.15rem 0.95rem;
+  border-bottom: 1px solid rgba(12, 29, 58, 0.07);
+  background: rgba(12, 29, 58, 0.025);
+  transition: background 0.2s;
+  border-radius: 12px 12px 0 0;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .landing-page .ps-card-head {
+    min-height: 6.5rem;
+    padding: 1.25rem 1.25rem 1rem;
+  }
+}
+
+.landing-page .ps-card-topline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  min-width: 0;
+  min-height: 28px;
+}
+
+.landing-page .ps-card-title {
+  flex: 1;
+  min-width: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.22rem;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .landing-page .ps-card-title {
+    font-size: 1.28rem;
+  }
+}
+
+.landing-page .ps-card-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-height: 34px;
+}
+
+.landing-page .ps-card-badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--navy);
+  background: #e8eef8;
+  border: 2px solid #fff;
+  padding: 4px 14px;
+  border-radius: 100px;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(12, 29, 58, 0.12);
+}
+
+@media (min-width: 640px) {
+  .landing-page .ps-card-badge {
+    font-size: 11px;
+    padding: 4px 16px;
+  }
+}
+
+.landing-page .ps-card-price,
+.landing-page .ps-card-duration {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--navy);
+  line-height: 1.4;
+}
+
+.landing-page .ps-card-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+@media (min-width: 640px) {
+  .landing-page .ps-card-price,
+  .landing-page .ps-card-duration {
+    font-size: 16.5px;
+  }
+
+  .landing-page .ps-card-price {
+    font-size: 1.16rem;
+  }
+}
+
+.landing-page .ps-card-perks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+  min-width: 62px;
+  min-height: 40px;
+  justify-content: flex-end;
+}
+
+.landing-page .ps-card-perk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  padding: 5px;
+  line-height: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.landing-page .ps-card-perk svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.landing-page .ps-card-perk--coffee {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.landing-page .ps-card-coffee-circle {
+  width: 52px;
+  height: 52px;
+  display: block;
+  object-fit: cover;
+  transform: scale(1);
+  transform-origin: center;
+  filter: contrast(1.35) brightness(0.86) saturate(1.05) drop-shadow(0 0 0.35px rgba(52, 39, 8, 0.6));
+}
+
+.landing-page .ps-card-perk--loyalty {
+  background: rgba(201, 168, 76, 0.12);
+  color: #92650a;
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+.landing-page .ps-card-perk--loyalty svg {
+  width: 17px;
+  height: 17px;
+}
+
+.landing-page .ps-card-body {
+  flex: 1 1 auto;
+  padding: 1rem 1.15rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 0 0 12px 12px;
+}
+
+@media (min-width: 640px) {
+  .landing-page .ps-card-body {
+    padding: 1.05rem 1.25rem 1.25rem;
+  }
+}
+
+/* ── Feature rows ── */
+.landing-page .ps-detail-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-page .ps-row-heading {
+  width: 100%;
+}
+
+.landing-page .ps-row-heading--gap {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(12, 29, 58, 0.07);
+}
+
+.landing-page .ps-row-heading-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.landing-page .ps-row-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.landing-page .ps-row-item--gap {
+  margin-top: 2px;
+}
+
+.landing-page .ps-row-item--gap-included-after-excluded {
+  margin-top: 8px;
+}
+
+.landing-page .ps-row-check {
+  flex-shrink: 0;
+  margin-top: 3px;
+  line-height: 0;
+}
+
+.landing-page .ps-row-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+  line-height: 1.5;
+  word-break: break-word;
+  min-width: 0;
+  flex: 1;
+}
+
+.landing-page .ps-row-text--excluded {
+  color: #b0b8c4;
+}
+
+.landing-page .ps-card-duration-row {
+  margin-top: 0.9rem;
+  padding-top: 0.72rem;
+  border-top: 1px solid rgba(12, 29, 58, 0.16);
+  display: flex;
+  justify-content: center;
+}
+
+.landing-page .ps-card-duration-text {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #27456f;
+  line-height: 1.25;
+}
+
+/* ── Footer CTA ── */
+.landing-page .ps-panel-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 1.25rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: rgba(249, 247, 242, 0.5);
+  border-radius: 0 0 14px 14px;
+}
+
+@media (min-width: 768px) {
+  .landing-page .ps-panel-footer {
+    padding: 1.35rem 1.75rem 1.65rem;
+  }
+}
+
+.landing-page .ps-book-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 360px;
+  padding: 14px 28px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
+  box-shadow: 0 3px 10px rgba(12, 29, 58, 0.18);
+  line-height: 1.4;
+}
+
+.landing-page .ps-book-btn:hover {
+  background: #1a3560;
+  box-shadow: 0 6px 18px rgba(12, 29, 58, 0.24);
+  transform: translateY(-1px);
+}
