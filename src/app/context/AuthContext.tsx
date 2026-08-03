@@ -8,11 +8,11 @@ import {
 } from 'react';
 import { clearSignupProfilePending } from '../lib/signupProfileGate';
 import {
-  apiCustomerLogin,
   apiCustomerRegister,
   apiGuestCheckoutRegister,
   apiGetCustomerMe,
   apiPatchCustomerProfile,
+  apiVerifyLoginOtp,
   type CustomerAuthResponse,
 } from '../lib/userApi';
 
@@ -84,14 +84,14 @@ interface AuthContextType {
   isAuthenticated: boolean;
   /** Has a valid access token (profile may still be incomplete). */
   hasCustomerSession: boolean;
-  customerLogin: (identifier: string, password: string) => Promise<{ profileCompleted: boolean }>;
-  customerRegister: (phone: string, password: string) => Promise<void>;
+  customerLogin: (phone: string, otp: string) => Promise<{ profileCompleted: boolean }>;
+  customerRegister: (phone: string) => Promise<void>;
   /**
-   * Register from guest checkout — no OTP verification.
+   * Register from guest checkout after phone OTP verification.
    * Throws `FieldValidationError` if email or phone is already taken so the
    * checkout UI can display per-field messages without creating duplicate records.
    */
-  customerRegisterGuest: (email: string, password: string, phone?: string) => Promise<void>;
+  customerRegisterGuest: (email: string, phone?: string) => Promise<void>;
   refreshCustomerSession: () => Promise<void>;
   updateCustomerProfile: (body: {
     full_name: string;
@@ -148,8 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const customerLogin = useCallback(async (identifier: string, password: string) => {
-    const r = await apiCustomerLogin(identifier, password);
+  const customerLogin = useCallback(async (phone: string, otp: string) => {
+    const r = await apiVerifyLoginOtp(phone, otp);
     const next = authResponseToSession(r);
     persist(next);
     setSession(next);
@@ -182,8 +182,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { profileCompleted: r.profile_completed };
   }, []);
 
-  const customerRegister = useCallback(async (phone: string, password: string) => {
-    const r = await apiCustomerRegister(phone, password);
+  const customerRegister = useCallback(async (phone: string) => {
+    const r = await apiCustomerRegister(phone);
     const next = authResponseToSession(r);
     persist(next);
     setSession(next);
@@ -214,10 +214,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   }, [migrateGuestVehicleToNewAccount]);
 
-  const customerRegisterGuest = useCallback(async (email: string, password: string, phone?: string) => {
+  const customerRegisterGuest = useCallback(async (email: string, phone?: string) => {
     // apiGuestCheckoutRegister throws FieldValidationError on duplicate email/phone —
     // the caller (PaymentPage) catches that and shows per-field messages.
-    const r = await apiGuestCheckoutRegister(email, password, phone);
+    const r = await apiGuestCheckoutRegister(email, phone);
     const next = authResponseToSession(r);
     persist(next);
     setSession(next);

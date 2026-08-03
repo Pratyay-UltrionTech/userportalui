@@ -120,25 +120,31 @@ async function getJson<T>(path: string, token: string): Promise<T> {
   return data as T;
 }
 
-export function apiCustomerRegister(phone: string, password: string): Promise<CustomerAuthResponse> {
-  return postJson<CustomerAuthResponse>('/auth/customer/register', { phone, password });
+export function apiCustomerRegister(phone: string, password?: string): Promise<CustomerAuthResponse> {
+  const body: { phone: string; password?: string } = { phone };
+  if (password) body.password = password;
+  return postJson<CustomerAuthResponse>('/auth/customer/register', body);
 }
 
 /**
- * Register from guest checkout — no OTP verification required.
- * Returns structured `field_errors` (via FieldValidationError) when email or
- * phone already belongs to an existing account.
+ * Register from guest checkout after phone OTP verification.
+ * Password is optional (passwordless). Returns structured `field_errors`
+ * (via FieldValidationError) when email or phone already belongs to an account.
  */
 export async function apiGuestCheckoutRegister(
   email: string,
-  password: string,
-  phone?: string
+  phone?: string,
+  password?: string
 ): Promise<CustomerAuthResponse> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   const res = await fetch(`${API_BASE}/auth/customer/register-guest`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ email, password, ...(phone ? { phone } : {}) }),
+    body: JSON.stringify({
+      email,
+      ...(phone ? { phone } : {}),
+      ...(password ? { password } : {}),
+    }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -149,8 +155,20 @@ export async function apiGuestCheckoutRegister(
   return data as CustomerAuthResponse;
 }
 
+/** @deprecated Prefer apiVerifyLoginOtp — kept for legacy callers. */
 export function apiCustomerLogin(identifier: string, password: string): Promise<CustomerAuthResponse> {
   return postJson<CustomerAuthResponse>('/auth/customer/login', { identifier, password });
+}
+
+export function apiSendLoginOtp(phone: string): Promise<void> {
+  return postJsonAnon('/auth/customer/send-login-otp', { phone });
+}
+
+export function apiVerifyLoginOtp(phone: string, otp: string): Promise<CustomerAuthResponse> {
+  return postJson<CustomerAuthResponse>('/auth/customer/verify-login-otp', {
+    identifier: phone,
+    otp,
+  });
 }
 
 export function apiGetCustomerMe(token: string): Promise<CustomerMeResponse> {

@@ -35,7 +35,7 @@ import {
   listMobilePromoCodes,
 } from '../lib/mobilePublicBridge';
 import { useAdminBridgeSync } from '../hooks/useAdminBridgeSync';
-import { apiListAddresses, apiCreateAddress, apiCheckFieldAvailability, FieldValidationError } from '../lib/userApi';
+import { apiListAddresses, apiCreateAddress, apiCheckFieldAvailability, FieldValidationError, apiSendSignupOtp, apiVerifySignupOtp, apiSendLoginOtp } from '../lib/userApi';
 import { sanitizePostcode } from '../lib/addressDetails';
 import { AuStateSelect } from '../components/AuStateSelect';
 import { cn } from '../components/ui/utils';
@@ -257,13 +257,14 @@ export function PaymentPage() {
   const [postcode, setPostcode] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [createAccount, setCreateAccount] = useState(false);
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [guestOtpSent, setGuestOtpSent] = useState(false);
+  const [guestOtpCode, setGuestOtpCode] = useState('');
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // Existing customer login
-  const [loginIdentifier, setLoginIdentifier] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  // Existing customer login (phone + OTP) — local 9 digits; +61 is fixed in UI
+  const [loginLocalMobile, setLoginLocalMobile] = useState('');
+  const [loginOtpSent, setLoginOtpSent] = useState(false);
+  const [loginOtpCode, setLoginOtpCode] = useState('');
   const [paymentAuthError, setPaymentAuthError] = useState('');
   const [paymentAuthBusy, setPaymentAuthBusy] = useState(false);
   // Per-field duplicate errors from register-guest (email/phone already taken)
@@ -312,9 +313,9 @@ export function PaymentPage() {
       });
     }
     const email = userType === 'guest' ? guestEmail : '';
-    const phone = userType === 'existing' ? loginIdentifier : mobile;
+    const phone = userType === 'existing' ? loginLocalMobile : mobile;
     return buildPromoIdentityKeys({ email, phone });
-  }, [session?.memberId, session?.email, session?.phone, userType, guestEmail, loginIdentifier, mobile]);
+  }, [session?.memberId, session?.email, session?.phone, userType, guestEmail, loginLocalMobile, mobile]);
 
   /** Resolved email and phone for server-side promo usage checks. */
   const promoCheckEmail = isAuthenticated
@@ -464,7 +465,7 @@ export function PaymentPage() {
         ? session.phone?.trim() || '-'
         : userType === 'guest'
           ? mobile.trim() || '-'
-          : mobile.trim() || loginIdentifier.trim() || '-';
+          : mobile.trim() || loginLocalMobile.trim() || '-';
     const addressVal =
       serviceType === 'onsite'
         ? (mobileVisitAddress?.full_address?.trim() || '-')
@@ -652,15 +653,6 @@ export function PaymentPage() {
       errs.postcode = 'Enter 4-6 digits';
     }
 
-    if (createAccount) {
-      const passRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-      if (!password) errs.password = 'Password is required';
-      else if (!passRegex.test(password)) {
-        errs.password = 'Password must be at least 8 characters with 1 uppercase letter and 1 number';
-      }
-      if (confirmPassword !== password) errs.confirmPassword = 'Passwords do not match';
-    }
-
     return errs;
   };
 
@@ -671,20 +663,24 @@ export function PaymentPage() {
   // For mobile (onsite) bookings, address is always required for dispatch.
   const guestAddressOptional = userType === 'guest' && serviceType !== 'onsite';
 
+  const guestBaseDetailsValid = () => {
+    if (Object.values(duplicateErrors).some(Boolean)) return false;
+    // Temporarily ignore OTP-only keys
+    return Object.keys(fieldErrors).length === 0;
+  };
+
   const isUserDetailsValid = () => {
     if (isAuthenticated) return true;
     if (profileIncomplete) return false;
     if (userType === 'existing') {
-      return !!(loginIdentifier && loginPassword);
+      return loginOtpSent && loginOtpCode.length === 6 && loginLocalMobile.length === 9;
     }
-    // Block if any field-level duplicate errors are present (phone/email already registered)
-    if (Object.values(duplicateErrors).some(Boolean)) return false;
-    return Object.keys(fieldErrors).length === 0;
+    return guestBaseDetailsValid();
   };
 
-  // When the guest ticks "Create account" but hasn't clicked the Create account
-  // button yet, the booking must not proceed — the account creation step must
-  // be completed (or the checkbox unchecked) first.
+  // When the guest ticks "Create account" but hasn't completed OTP signup yet,
+  // the booking must not proceed — the account creation step must be completed
+  // (or the checkbox unchecked) first.
   const accountCreationPending =
     !isAuthenticated &&
     userType === 'guest' &&
@@ -999,7 +995,11 @@ export function PaymentPage() {
                       value={mobile}
                       onChange={(e) => {
                         const val = e.target.value.replace(/\s/g, '');
-                        if (val === '' || /^\d*$/.test(val)) setMobile(val.slice(0, 9));
+                        if (val === '' || /^\d*$/.test(val)) {
+                          setMobile(val.slice(0, 9));
+                          setGuestOtpSent(false);
+                          setGuestOtpCode('');
+                        }
                         if (duplicateErrors.phone) setDuplicateErrors(p => ({ ...p, phone: '' }));
                       }}
                       onBlur={async () => {
@@ -1189,7 +1189,12 @@ export function PaymentPage() {
                       <input
                         type="checkbox"
                         checked={createAccount}
-                        onChange={(e) => setCreateAccount(e.target.checked)}
+                        onChange={(e) => {
+                          setCreateAccount(e.target.checked);
+                          setGuestOtpSent(false);
+                          setGuestOtpCode('');
+                          setPaymentAuthError('');
+                        }}
                         className="h-5 w-5 cursor-pointer rounded border-2 border-gray-300 text-[#0c1d3a] focus:ring-2 focus:ring-[#0c1d3a]/25 focus:ring-offset-0"
                       />
                     </div>
@@ -1210,120 +1215,32 @@ export function PaymentPage() {
                     exit={{ opacity: 0, height: 0 }}
                     className="space-y-4 pt-4 border-t border-gray-200"
                   >
-                    {/*
-                      Hidden username input consumed by the browser's autofill heuristic.
-                      Browsers pair the nearest username/email field with a password field
-                      to trigger credential autofill.  Providing an explicit hidden username
-                      here — in addition to autoComplete="new-password" on the visible
-                      inputs — stops Chrome/Safari from pre-filling with saved credentials.
-                    */}
-                    <input type="text" autoComplete="username" aria-hidden="true"
-                      tabIndex={-1} style={{ display: 'none' }} readOnly value={guestEmail} />
+                    <p className="text-sm text-gray-600">
+                      We’ll send a 6-digit code to <strong>+61{mobile.trim() || '…'}</strong> to verify your mobile and create your account.
+                    </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Password <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
-                          placeholder="e.g. Abcdef12"
-                          autoComplete="new-password"
-                          className={`${guestFieldInp} ${
-                            touched.password && fieldErrors.password ? 'border-red-500' : 'border-gray-300'
-                          }`}
-                          required
-                        />
-                        {touched.password && fieldErrors.password && (
-                          <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Confirm Password <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          onBlur={() => setTouched(prev => ({ ...prev, confirmPassword: true }))}
-                          placeholder="e.g. Abcdef12"
-                          autoComplete="new-password"
-                          className={`${guestFieldInp} ${
-                            touched.confirmPassword && fieldErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                          }`}
-                          required
-                        />
-                        {touched.confirmPassword && fieldErrors.confirmPassword && (
-                          <p className="text-xs text-red-500 mt-1">{fieldErrors.confirmPassword}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Duplicate-account error banner — shown near the button so the
-                        user sees it without having to scroll back up */}
-                    {(duplicateErrors.email || duplicateErrors.phone) && (
-                      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 space-y-1">
-                        {duplicateErrors.email && (
-                          <p className="text-sm text-red-700 flex items-start gap-2">
-                            <span className="shrink-0 mt-0.5">⚠</span>
-                            {duplicateErrors.email}
-                          </p>
-                        )}
-                        {duplicateErrors.phone && (
-                          <p className="text-sm text-red-700 flex items-start gap-2">
-                            <span className="shrink-0 mt-0.5">⚠</span>
-                            {duplicateErrors.phone}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Create Account Button */}
-                    <div className="pt-4">
+                    {!guestOtpSent ? (
                       <button
                         type="button"
                         onClick={async () => {
-                          if (!isUserDetailsValid()) return;
+                          if (!guestBaseDetailsValid() || !mobile.trim()) return;
                           setPaymentAuthError('');
                           setDuplicateErrors({});
                           setPaymentAuthBusy(true);
                           try {
-                            // Register without OTP — backend checks email + phone uniqueness
-                            // and returns structured field_errors if either is already taken.
-                            const phone = `+61${mobile.trim()}`;
-                            await customerRegisterGuest(guestEmail.trim(), password, phone);
-                            // Profile patch: set name and phone (address optional for branch)
-                            await updateCustomerProfile({
-                              full_name: `${firstName} ${lastName}`.trim(),
-                              phone,
-                              address:
-                                serviceType === 'onsite' && mobileVisitAddress?.full_address?.trim()
-                                  ? mobileVisitAddress.full_address.trim()
-                                  : composeGuestAddress(street, suburb, stateVal, postcode),
-                              vehicles: [],
-                            });
+                            await apiSendSignupOtp(`+61${mobile.trim()}`);
+                            setGuestOtpSent(true);
+                            setGuestOtpCode('');
                           } catch (e) {
-                            if (e instanceof FieldValidationError) {
-                              // Show "Email already exists. Login to continue." etc.
-                              // under the specific field — do NOT show a generic banner.
-                              setDuplicateErrors(e.fields);
-                            } else {
-                              setPaymentAuthError(
-                                e instanceof Error ? e.message : 'Could not create account'
-                              );
-                            }
+                            setPaymentAuthError(e instanceof Error ? e.message : 'Could not send code');
                           } finally {
                             setPaymentAuthBusy(false);
                           }
                         }}
-                        disabled={!isUserDetailsValid() || paymentAuthBusy}
+                        disabled={!guestBaseDetailsValid() || paymentAuthBusy || !/^\d{9}$/.test(mobile.replace(/\s/g, ''))}
                         className="w-full rounded-xl py-4 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
                         style={
-                          isUserDetailsValid() && !paymentAuthBusy
+                          guestBaseDetailsValid() && !paymentAuthBusy
                             ? {
                                 background: BTN_BG,
                                 color: BTN_TEXT,
@@ -1332,9 +1249,115 @@ export function PaymentPage() {
                             : { background: '#f3f4f6', color: '#9ca3af' }
                         }
                       >
-                        {paymentAuthBusy ? 'Creating account…' : 'Create account'}
+                        {paymentAuthBusy ? 'Sending…' : 'Send verification code'}
                       </button>
-                    </div>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            6-digit code <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={6}
+                            value={guestOtpCode}
+                            onChange={(e) => setGuestOtpCode(e.target.value.replace(/\D/g, ''))}
+                            placeholder="000000"
+                            className={`${guestFieldInp} text-center text-xl font-mono tracking-[0.4em]`}
+                          />
+                        </div>
+
+                        {(duplicateErrors.email || duplicateErrors.phone) && (
+                          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 space-y-1">
+                            {duplicateErrors.email && (
+                              <p className="text-sm text-red-700 flex items-start gap-2">
+                                <span className="shrink-0 mt-0.5">⚠</span>
+                                {duplicateErrors.email}
+                              </p>
+                            )}
+                            {duplicateErrors.phone && (
+                              <p className="text-sm text-red-700 flex items-start gap-2">
+                                <span className="shrink-0 mt-0.5">⚠</span>
+                                {duplicateErrors.phone}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="pt-2 space-y-2">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!guestBaseDetailsValid() || guestOtpCode.length !== 6) return;
+                              setPaymentAuthError('');
+                              setDuplicateErrors({});
+                              setPaymentAuthBusy(true);
+                              try {
+                                const phone = `+61${mobile.trim()}`;
+                                await apiVerifySignupOtp(phone, guestOtpCode);
+                                await customerRegisterGuest(guestEmail.trim(), phone);
+                                await updateCustomerProfile({
+                                  full_name: `${firstName} ${lastName}`.trim(),
+                                  phone,
+                                  address:
+                                    serviceType === 'onsite' && mobileVisitAddress?.full_address?.trim()
+                                      ? mobileVisitAddress.full_address.trim()
+                                      : composeGuestAddress(street, suburb, stateVal, postcode),
+                                  vehicles: [],
+                                });
+                              } catch (e) {
+                                if (e instanceof FieldValidationError) {
+                                  setDuplicateErrors(e.fields);
+                                } else {
+                                  setPaymentAuthError(
+                                    e instanceof Error ? e.message : 'Could not create account'
+                                  );
+                                }
+                              } finally {
+                                setPaymentAuthBusy(false);
+                              }
+                            }}
+                            disabled={
+                              !guestBaseDetailsValid() ||
+                              guestOtpCode.length !== 6 ||
+                              paymentAuthBusy
+                            }
+                            className="w-full rounded-xl py-4 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                            style={
+                              guestBaseDetailsValid() && guestOtpCode.length === 6 && !paymentAuthBusy
+                                ? {
+                                    background: BTN_BG,
+                                    color: BTN_TEXT,
+                                    boxShadow: '0 4px 14px rgba(201,168,76,0.4)',
+                                  }
+                                : { background: '#f3f4f6', color: '#9ca3af' }
+                            }
+                          >
+                            {paymentAuthBusy ? 'Creating account…' : 'Verify & Create account'}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={paymentAuthBusy}
+                            onClick={async () => {
+                              setPaymentAuthBusy(true);
+                              setPaymentAuthError('');
+                              try {
+                                await apiSendSignupOtp(`+61${mobile.trim()}`);
+                                setGuestOtpCode('');
+                              } catch (e) {
+                                setPaymentAuthError(e instanceof Error ? e.message : 'Could not resend code');
+                              } finally {
+                                setPaymentAuthBusy(false);
+                              }
+                            }}
+                            className="w-full text-sm text-gray-500 hover:text-gray-700 py-2"
+                          >
+                            Resend code
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </motion.div>
                 )}
               </motion.div>
@@ -1350,73 +1373,130 @@ export function PaymentPage() {
               >
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email <span className="text-red-500">*</span>
+                    Mobile number <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    value={loginIdentifier}
-                    onChange={(e) => setLoginIdentifier(e.target.value)}
-                    placeholder="+61 412 345 678"
-                    autoComplete="username"
-                    className={guestFieldInp}
-                    required
-                  />
+                  <div className="flex">
+                    <span className="inline-flex items-center rounded-l-xl border border-r-0 border-gray-200 bg-gray-50 px-4 py-3 font-mono text-sm text-gray-500 select-none">
+                      +61
+                    </span>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      value={loginLocalMobile}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 9);
+                        setLoginLocalMobile(val);
+                        setLoginOtpSent(false);
+                        setLoginOtpCode('');
+                      }}
+                      placeholder="412 345 678"
+                      autoComplete="tel-national"
+                      className={`${guestFieldInp} rounded-l-none`}
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="e.g. your password"
-                    className={guestFieldInp}
-                    required
-                  />
-                </div>
+                {loginOtpSent && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      6-digit code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={loginOtpCode}
+                      onChange={(e) => setLoginOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                      className={`${guestFieldInp} text-center text-xl font-mono tracking-[0.4em]`}
+                    />
+                  </div>
+                )}
 
-                <div className="flex items-center justify-between">
-                  <button
-                    type="button"
-                    className="text-sm font-semibold transition hover:opacity-80"
-                    style={{ color: NAVY }}
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-
-                {/* Login Button */}
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!loginIdentifier || !loginPassword) return;
-                      setPaymentAuthError('');
-                      setPaymentAuthBusy(true);
-                      try {
-                        await customerLogin(loginIdentifier.trim(), loginPassword);
-                      } catch (e) {
-                        setPaymentAuthError(e instanceof Error ? e.message : 'Login failed');
-                      } finally {
-                        setPaymentAuthBusy(false);
+                <div className="pt-2 space-y-2">
+                  {!loginOtpSent ? (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (loginLocalMobile.length !== 9) return;
+                        setPaymentAuthError('');
+                        setPaymentAuthBusy(true);
+                        try {
+                          await apiSendLoginOtp(`+61${loginLocalMobile}`);
+                          setLoginOtpSent(true);
+                          setLoginOtpCode('');
+                        } catch (e) {
+                          setPaymentAuthError(e instanceof Error ? e.message : 'Could not send code');
+                        } finally {
+                          setPaymentAuthBusy(false);
+                        }
+                      }}
+                      disabled={loginLocalMobile.length !== 9 || paymentAuthBusy}
+                      className="w-full rounded-xl py-4 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                      style={
+                        loginLocalMobile.length === 9 && !paymentAuthBusy
+                          ? {
+                              background: BTN_BG,
+                              color: BTN_TEXT,
+                              boxShadow: '0 4px 14px rgba(201,168,76,0.4)',
+                            }
+                          : { background: '#f3f4f6', color: '#9ca3af' }
                       }
-                    }}
-                    disabled={!loginIdentifier || !loginPassword || paymentAuthBusy}
-                    className="w-full rounded-xl py-4 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
-                    style={
-                      loginIdentifier && loginPassword && !paymentAuthBusy
-                        ? {
-                            background: BTN_BG,
-                            color: BTN_TEXT,
-                            boxShadow: '0 4px 14px rgba(201,168,76,0.4)',
+                    >
+                      {paymentAuthBusy ? 'Sending…' : 'Send sign-in code'}
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (loginLocalMobile.length !== 9 || loginOtpCode.length !== 6) return;
+                          setPaymentAuthError('');
+                          setPaymentAuthBusy(true);
+                          try {
+                            await customerLogin(`+61${loginLocalMobile}`, loginOtpCode);
+                          } catch (e) {
+                            setPaymentAuthError(e instanceof Error ? e.message : 'Login failed');
+                          } finally {
+                            setPaymentAuthBusy(false);
                           }
-                        : { background: '#f3f4f6', color: '#9ca3af' }
-                    }
-                  >
-                    {paymentAuthBusy ? 'Signing in…' : 'Log in'}
-                  </button>
+                        }}
+                        disabled={loginLocalMobile.length !== 9 || loginOtpCode.length !== 6 || paymentAuthBusy}
+                        className="w-full rounded-xl py-4 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                        style={
+                          loginLocalMobile.length === 9 && loginOtpCode.length === 6 && !paymentAuthBusy
+                            ? {
+                                background: BTN_BG,
+                                color: BTN_TEXT,
+                                boxShadow: '0 4px 14px rgba(201,168,76,0.4)',
+                              }
+                            : { background: '#f3f4f6', color: '#9ca3af' }
+                        }
+                      >
+                        {paymentAuthBusy ? 'Signing in…' : 'Verify & Log in'}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={paymentAuthBusy}
+                        onClick={async () => {
+                          setPaymentAuthBusy(true);
+                          setPaymentAuthError('');
+                          try {
+                            await apiSendLoginOtp(`+61${loginLocalMobile}`);
+                            setLoginOtpCode('');
+                          } catch (e) {
+                            setPaymentAuthError(e instanceof Error ? e.message : 'Could not resend code');
+                          } finally {
+                            setPaymentAuthBusy(false);
+                          }
+                        }}
+                        className="w-full text-sm text-gray-500 hover:text-gray-700 py-2"
+                      >
+                        Resend code
+                      </button>
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}
