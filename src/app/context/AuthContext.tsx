@@ -6,12 +6,13 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { clearSignupProfilePending } from '../lib/signupProfileGate';
+import { clearSignupProfilePending, setSignupProfilePending } from '../lib/signupProfileGate';
 import {
   apiCustomerRegister,
   apiGuestCheckoutRegister,
   apiGetCustomerMe,
   apiPatchCustomerProfile,
+  apiVerifyContinueOtp,
   apiVerifyLoginOtp,
   type CustomerAuthResponse,
 } from '../lib/userApi';
@@ -86,6 +87,8 @@ interface AuthContextType {
   hasCustomerSession: boolean;
   customerLogin: (phone: string, otp: string) => Promise<{ profileCompleted: boolean }>;
   customerRegister: (phone: string) => Promise<void>;
+  /** Unified continue: login existing or register new after OTP verify. */
+  customerContinue: (phone: string, otp: string) => Promise<{ profileCompleted: boolean; isNewUser: boolean }>;
   /**
    * Register from guest checkout after phone OTP verification.
    * Throws `FieldValidationError` if email or phone is already taken so the
@@ -124,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Migrate the guest vehicle draft into a brand-new account.
-   * ONLY called from customerRegister — never from customerLogin.
+   * ONLY called for new registrations (customerRegister / customerContinue with is_new_user).
    * New accounts are guaranteed to start with an empty vehicle list,
    * so there is no risk of overwriting existing data.
    */
@@ -181,6 +184,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
     return { profileCompleted: r.profile_completed };
   }, []);
+
+  const clearGuestBookingPersonalData = () => {
+    try {
+      const BOOKING_KEY = 'carwash_user_booking_ctx_v3';
+      const raw = localStorage.getItem(BOOKING_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        parsed.user = null;
+        parsed.vehicles = [];
+        localStorage.setItem(BOOKING_KEY, JSON.stringify(parsed));
+      }
+    } catch { /* ignore */ }
+    try {
+      const BOOKING_KEY = 'carwash_user_booking_ctx_v3';
+      const raw = sessionStorage.getItem(BOOKING_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        parsed.mobileVisitAddress = null;
+        sessionStorage.setItem(BOOKING_KEY, JSON.stringify(parsed));
+      }
+    } catch { /* ignore */ }
+  };
+
+  const customerContinue = useCallback(async (phone: string, otp: string) => {
+    const r = await apiVerifyContinueOtp(phone, otp);
+    const next = authResponseToSession(r);
+    persist(next);
+    setSession(next);
+    const isNewUser = !!r.is_new_user;
+    if (isNewUser) {
+      setSignupProfilePending();
+      await migrateGuestVehicleToNewAccount(next);
+    } else {
+      clearSignupProfilePending();
+      localStorage.removeItem('guestVehicle');
+    }
+    clearGuestBookingPersonalData();
+    return { profileCompleted: r.profile_completed, isNewUser };
+  }, [migrateGuestVehicleToNewAccount]);
 
   const customerRegister = useCallback(async (phone: string) => {
     const r = await apiCustomerRegister(phone);
@@ -284,6 +326,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasCustomerSession,
       customerLogin,
       customerRegister,
+      customerContinue,
       customerRegisterGuest,
       refreshCustomerSession,
       updateCustomerProfile,
@@ -295,6 +338,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasCustomerSession,
       customerLogin,
       customerRegister,
+      customerContinue,
       customerRegisterGuest,
       refreshCustomerSession,
       updateCustomerProfile,

@@ -10,6 +10,8 @@ export type CustomerAuthResponse = {
   phone: string;
   address: string;
   vehicles: { type: string; number?: string; model: string }[];
+  /** Present on continue OTP verify — true when a new account was just created. */
+  is_new_user?: boolean;
 };
 
 export type CustomerMeResponse = {
@@ -166,6 +168,19 @@ export function apiSendLoginOtp(phone: string): Promise<void> {
 
 export function apiVerifyLoginOtp(phone: string, otp: string): Promise<CustomerAuthResponse> {
   return postJson<CustomerAuthResponse>('/auth/customer/verify-login-otp', {
+    identifier: phone,
+    otp,
+  });
+}
+
+/** Unified continue: send OTP for new or existing customers. */
+export function apiSendContinueOtp(phone: string): Promise<void> {
+  return postJsonAnon('/auth/customer/send-continue-otp', { phone });
+}
+
+/** Unified continue: verify OTP — logs in existing users or creates a new account. */
+export function apiVerifyContinueOtp(phone: string, otp: string): Promise<CustomerAuthResponse> {
+  return postJson<CustomerAuthResponse>('/auth/customer/verify-continue-otp', {
     identifier: phone,
     otp,
   });

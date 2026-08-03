@@ -303,7 +303,7 @@ export function UserNavbar() {
                 style={{ background: NAVY, color: '#fff' }}
               >
                 <LogIn className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Sign In</span>
+                <span className="hidden sm:inline">Continue</span>
               </button>
             ) : (
               <button

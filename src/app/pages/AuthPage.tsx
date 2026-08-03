@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { ShieldCheck, Star, Clock, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { clearSignupProfilePending, setSignupProfilePending } from '../lib/signupProfileGate';
-import {
-  apiSendSignupOtp,
-  apiVerifySignupOtp,
-  apiSendLoginOtp,
-} from '../lib/userApi';
+import { apiSendContinueOtp } from '../lib/userApi';
 import { BRAND_NAME, HEADING_FONT_FAMILY, TAGLINE } from '../lib/branding';
 import { AppLogo } from '../components/AppLogo';
 
@@ -108,9 +103,7 @@ function BrandPanel() {
 /* ─── Main Auth page ─── */
 export function AuthPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { customerLogin, customerRegister, isAuthenticated } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  const { customerContinue, isAuthenticated } = useAuth();
   const [localMobile, setLocalMobile] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -136,10 +129,6 @@ export function AuthPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  useEffect(() => {
-    if (searchParams.get('signup') === '1') setIsLogin(false);
-  }, [searchParams]);
-
   const handleSendCode = async () => {
     setTouched(true);
     if (!phoneValid) return;
@@ -147,12 +136,7 @@ export function AuthPage() {
     setSending(true);
     const phone = toE164AuMobile(localMobile);
     try {
-      if (isLogin) {
-        clearSignupProfilePending();
-        await apiSendLoginOtp(phone);
-      } else {
-        await apiSendSignupOtp(phone);
-      }
+      await apiSendContinueOtp(phone);
       setOtpSent(true);
       setOtpCode('');
     } catch (err) {
@@ -178,29 +162,13 @@ export function AuthPage() {
     setVerifying(true);
     const phone = toE164AuMobile(localMobile);
     try {
-      if (isLogin) {
-        const { profileCompleted } = await customerLogin(phone, otpCode);
-        navigate(profileCompleted ? '/home' : '/profile-setup', { replace: true });
-      } else {
-        await apiVerifySignupOtp(phone, otpCode);
-        await customerRegister(phone);
-        setSignupProfilePending();
-        navigate('/profile-setup', { replace: true });
-      }
+      const { profileCompleted } = await customerContinue(phone, otpCode);
+      navigate(profileCompleted ? '/home' : '/profile-setup', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
     } finally {
       setVerifying(false);
     }
-  };
-
-  const switchMode = () => {
-    setIsLogin(p => !p);
-    setError('');
-    setTouched(false);
-    setLocalMobile('');
-    setOtpCode('');
-    setOtpSent(false);
   };
 
   const busy = sending || verifying;
@@ -211,7 +179,6 @@ export function AuthPage() {
 
       <div className="flex-1 flex items-center justify-center p-4 py-10">
         <motion.div
-          key={isLogin ? 'login' : 'signup'}
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -237,13 +204,9 @@ export function AuthPage() {
             </div>
 
             <div className="mb-8">
-              <h1 className={AUTH_PAGE_TITLE_CLASS}>
-                {isLogin ? 'Welcome back' : 'Create your account'}
-              </h1>
+              <h1 className={AUTH_PAGE_TITLE_CLASS}>Welcome</h1>
               <p className="text-sm text-gray-500">
-                {isLogin
-                  ? 'Enter your mobile number to receive a sign-in code'
-                  : 'Enter your mobile number to receive a verification code'}
+                Enter your mobile number to receive a verification code
               </p>
             </div>
 
@@ -346,24 +309,12 @@ export function AuthPage() {
                   </svg>
                 ) : (
                   <>
-                    {isLogin ? 'Sign In' : 'Create Account'}
+                    Continue
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
-
-            <p className="text-center text-sm text-gray-500 mt-5">
-              {isLogin ? "Don't have an account? " : 'Already have an account? '}
-              <button
-                type="button"
-                onClick={switchMode}
-                className="font-semibold transition-colors hover:underline"
-                style={{ color: GOLD }}
-              >
-                {isLogin ? 'Sign Up' : 'Sign In'}
-              </button>
-            </p>
 
             <p className="text-center text-xs text-gray-400 mt-6 flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" />
